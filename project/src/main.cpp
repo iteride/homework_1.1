@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     }
     bool flag = true;
     if(argc == 3){
-        if(std::string(argv[2]) == "--quiet")
+        if(std::string(argv[2]) == "--quiet" || std::string(argv[1]) == "--quiet")
         {
             flag = false;
         }
@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
         }
         type="";
         ind_t = line.find("type=");
-        while(line[ind_t]!=' ')
+        while(line[ind_t]!=' ' || line[ind_t]!='\n')
             {
                 type+=line[ind_t];
                 ind_t+=1;
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
     }
 }
     if(flag){
-        std::print("всего событий {}\n", lines - comments);
+        std::print("всего событий {} , всего комментариев {}\n", lines - comments,comments);
         for(const auto& [type,amount] : types)
         {
             std::print("type = {} || count events with this type - {}\n",type,amount);

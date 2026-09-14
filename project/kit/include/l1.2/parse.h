@@ -66,7 +66,7 @@ bool ParseEventLine(const std::string* line, Event* out);
 // Строку можно пропустить молча: она пустая, состоит из пробелов либо
 // начинается с символа комментария.
 bool IsBlankOrComment(const std::string* line);
-
+    
 }  // namespace nano_edr
 
 #endif  // NANO_EDR_KIT_PARSE_H
