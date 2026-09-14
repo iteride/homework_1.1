@@ -15,6 +15,8 @@
 #include <fstream>
 #include <print>
 #include <string>
+#include <map>
+#include <vector>
 
 int main(int argc, char** argv) {
     // Аргументы разбираются грубо: путь к журналу и ничего больше. Остальное,
@@ -23,7 +25,13 @@ int main(int argc, char** argv) {
         std::print(stderr, "использование: nano-edr <журнал.log>\n");
         return 2;
     }
-
+    bool flag = true;
+    if(argc == 3){
+        if(std::string(argv[2]) == "--quiet")
+        {
+            flag = false;
+        }
+    }
     std::ifstream log(argv[1]);
     if (!log) {
         std::print(stderr, "не удалось открыть журнал: {}\n", argv[1]);
@@ -33,7 +41,10 @@ int main(int argc, char** argv) {
     long long lines = 0;
     long long comments = 0;
     std::string line;
-
+    std::map <std::string,int> types;
+    std::vector <std::string> warnings{"wscript.exe",".locked","certutil.exe","\\Startup\\"};
+    int ind_t;
+    std::string type;
     while (std::getline(log, line)) {
         // Счётчик увеличивается до всех проверок: он считает строки файла,
         // а не события. Номер, посчитанный по событиям, бесполезен — по нему
@@ -46,13 +57,27 @@ int main(int argc, char** argv) {
             ++comments;
             continue;
         }
-
-        // >>> Здесь начинается занятие 1.1.
-        //
-        // Проверка признаков и печать детекта. Номер строки, который нужен
-        // в выводе, — это lines.
+        type="";
+        ind_t = line.find("type=");
+        while(line[ind_t]!=' ')
+            {
+                type+=line[ind_t];
+                ind_t+=1;
+            }
+        //std::print("type {} str === {}\n",lines,type);
+        types[type]++;
+        for(int i=0;i<4;++i){
+            if(line.find(warnings[i])!=std::string::npos){
+                std::print("[DETECT] строка {}, признак {}: {}\n",lines,warnings[i],line);
+            }
     }
-
-    std::print("строк {}, из них комментариев {}\n", lines, comments);
+}
+    if(flag){
+        std::print("всего событий {}\n", lines - comments);
+        for(const auto& [type,amount] : types)
+        {
+            std::print("type = {} || count events with this type - {}\n",type,amount);
+        }
+    }
     return 0;
 }
